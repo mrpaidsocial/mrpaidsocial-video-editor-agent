@@ -28,6 +28,17 @@ class CutError(Exception):
     pass
 
 
+def filter_graph_args(ffmpeg, graph):
+    """FFmpeg 8 removed -filter_complex_script; 7+ reads a graph file via -/filter_complex."""
+    try:
+        banner = subprocess.run([str(ffmpeg), "-version"], text=True, capture_output=True).stdout
+        major = int(re.match(r"ffmpeg version n?(\d+)", banner).group(1))
+    except (OSError, AttributeError, ValueError):
+        major = 99  # git/N-builds are newer than 7.0; prefer the current syntax
+    flag = "-/filter_complex" if major >= 7 else "-filter_complex_script"
+    return [flag, str(graph)]
+
+
 def write_json(path, data):
     path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n")
 
@@ -279,7 +290,7 @@ def render(ffmpeg, ffprobe, source, outfile, work, spans, fps, sample_rate, crf,
     graph.write_text(";\n".join(parts) + "\n")
     pcm = work / "dialogue.wav"
     cmd = [ffmpeg, "-nostdin", "-hide_banner", "-loglevel", "error", "-n", *inputs,
-           "-filter_complex_script", str(graph), "-map", "[v]", "-map", "[a]",
+           *filter_graph_args(ffmpeg, graph), "-map", "[v]", "-map", "[a]",
            "-c:v", "libx264", "-crf", str(crf), "-preset", preset, "-g", str(fps),
            "-keyint_min", str(fps), "-pix_fmt", "yuv420p", "-r", str(fps),
            "-video_track_timescale", str(fps * 1000), "-c:a", "aac", "-b:a", "192k",
