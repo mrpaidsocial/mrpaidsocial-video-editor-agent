@@ -1,5 +1,23 @@
 # SESSION LOG — Video Editor Agent
 
+## 2026-11-01 — FFmpeg 8+ compatibility for the filter-graph renderers
+
+**Goal:** First setup on a machine with Homebrew FFmpeg 9.0.2; `bash scripts/setup.sh --demo` failed in the
+recap assembler with `Unrecognized option 'filter_complex_script'`.
+
+**Done:** FFmpeg 7 deprecated `-filter_complex_script FILE` and 8 removed it; the replacement is the generic
+file-argument form `-/filter_complex FILE`. Added `filter_graph_args(ffmpeg, graph)` to
+`reel-recut/scripts/cut_timeline.py` (imported by `build_reel.py`) and a stdlib-only copy in
+`recap-video/scripts/assemble.py`. It parses the major version from `ffmpeg -version` and emits the new flag on
+7+, the old flag below 7, and the new flag when the version is unparseable (git `N-` builds postdate 7.0).
+
+**Validation:** `scripts/demo.py` renders both versions, storyboard + technical QA pass, review canvas builds;
+`scripts/test.py` 47/47 offline (includes the 128-span production cut-assembler render). The three scripts were
+the only users of the removed flag.
+
+**Gotcha:** The pack's `bash scripts/*.sh` wrappers exec plain `python3`; a Mac whose `python3` is Apple's 3.9
+must call `python3.11 scripts/setup.py` etc. directly. Noted in MASTER_CONTEXT.md, not a skill change.
+
 ## 2026-10-26 — New skill: edits-hook-overlay (native Instagram text, made once, reused on many videos)
 
 **Goal:** Get the Edits app's native text hook onto many videos without opening each one in Edits.

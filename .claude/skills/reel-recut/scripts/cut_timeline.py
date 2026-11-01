@@ -6,6 +6,7 @@ import json
 import math
 import os
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import wave
@@ -20,6 +21,17 @@ def run(argv):
     if result.returncode:
         raise ValueError(f"{Path(str(argv[0])).name} failed: {result.stderr[-4000:]}")
     return result.stdout
+
+
+def filter_graph_args(ffmpeg, graph):
+    """FFmpeg 8 removed -filter_complex_script; 7+ reads a graph file via -/filter_complex."""
+    try:
+        banner = subprocess.run([str(ffmpeg), "-version"], text=True, capture_output=True).stdout
+        major = int(re.match(r"ffmpeg version n?(\d+)", banner).group(1))
+    except (OSError, AttributeError, ValueError):
+        major = 99  # git/N-builds are newer than 7.0; prefer the current syntax
+    flag = "-/filter_complex" if major >= 7 else "-filter_complex_script"
+    return [flag, str(graph)]
 
 
 def plan(keeps, fps=30, sample_rate=48000):
@@ -89,7 +101,7 @@ def render_base(source, output, work, keeps, fps=30, sample_rate=48000, crf=18,
         graph.write_text(";\n".join(filters))
         chunk = work / f"batch-{len(chunks):04}.mkv"
         run([ffmpeg, "-nostdin", "-v", "error", "-n", *inputs, "-filter_complex_threads", "1",
-             "-filter_complex_script", graph, "-map", "[v]", "-map", "[a]", "-c:v", "ffv1", "-threads", "1",
+             *filter_graph_args(ffmpeg, graph), "-map", "[v]", "-map", "[a]", "-c:v", "ffv1", "-threads", "1",
              "-pix_fmt", "yuv420p", "-r", str(rate), "-c:a", "pcm_s16le", "-ar", sample_rate, chunk])
         chunks.append(chunk)
     # Relative generated filenames avoid quoting arbitrary source paths in concat syntax.
