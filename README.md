@@ -118,7 +118,7 @@ and point it at this pack instead of copying skills into it:
 | Dependency | Why | Install / notes |
 |---|---|---|
 | Node.js >= 20 | HyperFrames, the QA engine, the scripts | nodejs.org |
-| ffmpeg / ffprobe | every probe, extract, crop, mux | `brew install ffmpeg` (or your package manager) — no libass/drawtext needed |
+| ffmpeg / ffprobe >= 7.0 | every probe, extract, crop, mux | `brew install ffmpeg` (or your package manager) — no libass/drawtext needed |
 | HyperFrames | composition + rendering engine | `npx hyperframes`; then `npx hyperframes skills update talking-head-recut` (pulls fonts + gsap) |
 | whisper (bundled route) | word-level transcription | `npx hyperframes transcribe` manages whisper.cpp models; `whisper-cli` + a ggml model unlocks the VAD-driven cut planners |
 | python3 | helper scripts | PIL (`pip install pillow`) for overlays; numpy + scipy for `ai-audio-sound-design` |

@@ -26,8 +26,8 @@ def main():
     elif canvas_tests:
         print("SKIP  review canvas suite: Node.js 20+ is unavailable", flush=True)
     if node_ready() and qa_ready(ROOT) and shutil.which("npm") and binary("ffmpeg") and binary("ffprobe"):
-        commands.extend([["npm", "--prefix", "tools/video-qa", "run", "typecheck"],
-                         ["npm", "--prefix", "tools/video-qa", "test"]])
+        commands.extend([[shutil.which("npm") or "npm", "--prefix", "tools/video-qa", "run", "typecheck"],
+                         [shutil.which("npm") or "npm", "--prefix", "tools/video-qa", "test"]])
     elif args.integration:
         print("FAIL: integration needs Node.js 20+, ffmpeg/ffprobe and QA dependencies. Run bash scripts/setup.sh --lane demo.", file=sys.stderr)
         return 1

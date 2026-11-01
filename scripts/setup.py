@@ -148,7 +148,7 @@ def install_dependencies(root, lane, dry_run):
         if qa_ready(root) and stamp.is_file() and stamp.read_text().strip() == fingerprint:
             print("KEEP  video QA dependencies match package-lock.json")
         else:
-            command = ["npm", "--prefix", str(qa), "ci", "--no-audit", "--no-fund"]
+            command = [shutil.which("npm") or "npm", "--prefix", str(qa), "ci", "--no-audit", "--no-fund"]
             print(("PLAN  " if dry_run else "RUN  ") + shlex.join(command))
             if not dry_run:
                 if not node_ready() or not shutil.which("npm"):
@@ -159,7 +159,7 @@ def install_dependencies(root, lane, dry_run):
         if hyperframes_binary(root):
             print("KEEP  HyperFrames CLI available")
         else:
-            command = ["npm", "install", "--prefix", str(root / "tools/hyperframes"),
+            command = [shutil.which("npm") or "npm", "install", "--prefix", str(root / "tools/hyperframes"),
                        "--no-save", "--no-package-lock", "--no-audit", "--no-fund", "hyperframes"]
             print(("PLAN  " if dry_run else "RUN  ") + shlex.join(command))
             if not dry_run:
