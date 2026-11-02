@@ -96,8 +96,18 @@ def font(path, size, weight):
     return f
 
 
+def shape(t):
+    """RTL text (Arabic/Hebrew) needs joining + visual reordering when Pillow has no raqm."""
+    if not any("֐" <= c <= "ࣿ" or "יִ" <= c <= "﻿" for c in t): return t
+    try:
+        import arabic_reshaper
+        from bidi.algorithm import get_display
+    except ImportError:
+        sys.exit("RTL text needs: python3 -m pip install arabic-reshaper python-bidi")
+    return get_display(arabic_reshaper.reshape(t))
+
 def line_w(d, t, f):
-    b = d.textbbox((0, 0), t, font=f); return b[2] - b[0]
+    b = d.textbbox((0, 0), shape(t), font=f); return b[2] - b[0]
 
 def wrap(d, text, f, maxw):
     out, cur = [], ""
@@ -134,7 +144,7 @@ def block_metrics(d, lines, f, lsp):
 def draw_block(d, lines, f, cx, top, lsp, fill, stroke=0):
     asc, desc = f.getmetrics(); lh = asc + desc; y = top
     for l in lines:
-        d.text((cx - line_w(d, l, f) / 2, y), l, font=f, fill=fill,
+        d.text((cx - line_w(d, l, f) / 2, y), shape(l), font=f, fill=fill,
                 stroke_width=stroke, stroke_fill=STROKE)
         y += lh + lsp
 
@@ -422,7 +432,7 @@ def build(spec_path, manifest_only=False):
     filt_path = os.path.join(work, "filt.txt"); open(filt_path, "w").write(filt)
     inputs = ["-i", src] + (["-i", overlay] if has_gfx else [])
     cmd = [FFMPEG, "-nostdin", "-n", *inputs,
-           "-filter_complex_script", filt_path, "-map", "[vout]", "-map", amap,
+           "-/filter_complex", filt_path, "-map", "[vout]", "-map", amap,
            "-c:v", "libx264", "-crf", str(spec.get("crf", 18)), "-preset", spec.get("preset", "veryfast"),
            "-pix_fmt", "yuv420p", "-r", str(FPS), "-frames:v", str(timeline["totalFrames"]), *acodec, "-movflags", "+faststart", out]
     print(f"orig {dur:.2f}s -> new {new_dur:.2f}s | cuts={len(cuts)} keep={len(keep)} "
