@@ -89,7 +89,7 @@ def render_base(source, output, work, keeps, fps=30, sample_rate=48000, crf=18,
         graph.write_text(";\n".join(filters))
         chunk = work / f"batch-{len(chunks):04}.mkv"
         run([ffmpeg, "-nostdin", "-v", "error", "-n", *inputs, "-filter_complex_threads", "1",
-             "-filter_complex_script", graph, "-map", "[v]", "-map", "[a]", "-c:v", "ffv1", "-threads", "1",
+             "-/filter_complex", graph, "-map", "[v]", "-map", "[a]", "-c:v", "ffv1", "-threads", "1",
              "-pix_fmt", "yuv420p", "-r", str(rate), "-c:a", "pcm_s16le", "-ar", sample_rate, chunk])
         chunks.append(chunk)
     # Relative generated filenames avoid quoting arbitrary source paths in concat syntax.
