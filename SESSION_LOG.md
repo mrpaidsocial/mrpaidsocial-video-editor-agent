@@ -580,3 +580,32 @@ five skill validations. Rechecked whitespace and public-repository hygiene befor
 committing. Media, credentials, local review storage and personal configuration
 remain ignored. No architecture or implementation changes were needed for this
 publication step.
+
+## 2026-11-02 — First machine setup + ffmpeg 9.x compatibility fix
+
+Cloned the pack to a new machine (no prior Homebrew, ffmpeg, or Python 3.10+) and
+walked the user — who had never used Homebrew/ffmpeg/Python and has no accounts
+with any of these — through installing Homebrew (needs their password, one-time,
+in their own Terminal) and then `brew install python ffmpeg` (no password needed,
+ran directly). `scripts/check-setup.sh` passed all required checks afterward.
+
+`bash scripts/setup.sh --demo` then failed at render time: `ffmpeg -filter_complex_script
+<file>` errored with "Unrecognized option" on the Homebrew-installed ffmpeg 9.0.2.
+Confirmed via `man ffmpeg` that newer ffmpeg removed the per-option `_script`
+variants in favor of a generic file-load prefix: any option's value can be loaded
+from a file by prepending `/` to the option name, e.g. `-/filter_complex <file>`
+in place of `-filter_complex_script <file>`. Fixed all three call sites —
+`.claude/skills/reel-recut/scripts/cut_timeline.py`,
+`.claude/skills/reel-recut/scripts/build_reel.py`, and
+`.claude/skills/recap-video/scripts/assemble.py` — with the same one-token swap.
+
+Validation: `bash scripts/demo.sh` completed end-to-end after the fix (base cut,
+graphic-overlay v2, storyboard + technical QA both passing, review canvas built).
+Full `bash scripts/test.sh --integration` passed (48 video-qa tests, Python editor/
+recap unittest suites, recap assembler smoke tests across both sample rates) with
+exit code 0.
+
+Lesson: ffmpeg CLI compatibility is not guaranteed across major versions — this
+pack had never been run against a 9.x ffmpeg before. If a future setup hits
+another "Unrecognized option" from ffmpeg, check `man ffmpeg` for a renamed
+equivalent before assuming the pipeline itself is broken.
