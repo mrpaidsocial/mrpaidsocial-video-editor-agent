@@ -422,7 +422,7 @@ def build(spec_path, manifest_only=False):
     filt_path = os.path.join(work, "filt.txt"); open(filt_path, "w").write(filt)
     inputs = ["-i", src] + (["-i", overlay] if has_gfx else [])
     cmd = [FFMPEG, "-nostdin", "-n", *inputs,
-           "-filter_complex_script", filt_path, "-map", "[vout]", "-map", amap,
+           "-/filter_complex", filt_path, "-map", "[vout]", "-map", amap,
            "-c:v", "libx264", "-crf", str(spec.get("crf", 18)), "-preset", spec.get("preset", "veryfast"),
            "-pix_fmt", "yuv420p", "-r", str(FPS), "-frames:v", str(timeline["totalFrames"]), *acodec, "-movflags", "+faststart", out]
     print(f"orig {dur:.2f}s -> new {new_dur:.2f}s | cuts={len(cuts)} keep={len(keep)} "

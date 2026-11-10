@@ -562,3 +562,58 @@ five skill validations. Rechecked whitespace and public-repository hygiene befor
 committing. Media, credentials, local review storage and personal configuration
 remain ignored. No architecture or implementation changes were needed for this
 publication step.
+
+## 2026-10-20 — First real edit: AEP Saturday recap
+- Setup on a new Mac: Homebrew, ffmpeg 9, Python 3.15, whisper-cpp (small.en), Google Drive for Desktop.
+- Fixed: ffmpeg 7+ removed `-filter_complex_script`; reel-recut (cut_timeline.py, build_reel.py)
+  and recap-video (assemble.py) now pass `-/filter_complex <file>`.
+- Recap lane on 33 vlog clips (~60 min) → 53s 9:16 cut; 12 lines, captions as Pillow PNG overlays
+  (no drawtext in Homebrew ffmpeg), loudness -15.0 LUFS / -2.1 dBTP.
+- QA engine: technical PASS; transcript-boundary flags adjudicated by RMS + windowed
+  re-transcription (ASR word spans running into removed silence/vetoes; one intended exclusion).
+- Lesson: whispered lines need `raw`; set line ends from RMS, not whisper word times.
+
+## 2026-10-23 — YouTube vlog v2 rebuilt in a reference day-in-the-life style
+- Cloned a friend's day-in-the-life edit (beat-synced montage intro, pinned left/right series titles, one B&W burst +
+  whip, white flash into the story, warm/contrasty grade, music under everything, minimal chapter labels).
+- Music: free Mixkit instrumentals (no vocals checked by transcription), beat grids measured; intro cuts frame-rounded
+  onto the beat grid (<=17 ms error), music ducked -19 dB under speech with 0.3 s pre-ramps, per-chapter tracks.
+- Lessons (generic, worth folding into skills):
+  - Check the PICTURE at every edge: a frame-difference/dark/blur edge checker + dense contact sheets caught camera whips,
+    dark first frames and pans that audio pinning missed. Cover unavoidable mid-line whips with a cutaway (L-cut) instead
+    of cutting words.
+  - Streamed cloud-drive sources can decode into macroblock garbage with NO decoder error, and the bad bytes can persist
+    in the local cache across renders (two renders matched). Scan each rendered piece for bursts of 16-px-grid edge
+    energy vs that piece's own median, then eyeball the flagged frames (motion blur/plain walls are false positives).
+  - Concat-demuxer PNG overlay + `fps=` floods overlay's queue (3-5 GB, SIGKILL on a 10-min timeline). Drop `fps=` and
+    let overlay hold each image; build a timed flash as a full-length transparent layer, not a pts-shifted short clip.
+  - Camera audio levels varied by >30 dB between clips: level each piece to one speech target (cap +32 dB), high-pass
+    and light FFT denoise on quiet clips, and redraw bleep tones after leveling.
+  - Build SRT captions by transcribing the rendered pieces (what is heard), keeping censored spellings under bleeps.
+
+## 2026-11-10 — AI call bot reel (reference-style clone, pictures sourced by Claude)
+- Talking-head 720x1280 phone clip cut to 1:47 in an IG reference's grammar: one lowercase cream word at a time on the chest, small rounded picture cards above the head with numbered step labels, sentence-boundary punch-ins. Renderer: PIL overlay states + one concat-demuxer overlay input (project folder `results-reel/`, outside the pack).
+- Reference studied by playing it in the logged-in in-app browser and zooming frames; seeking a paused MSE video did not repaint, so play-and-sample was needed.
+- User had no pictures: step cards are headless-Chrome captures of the real tool sites; result cards are designed stat cards (not dashboard look-alikes). v2 uses owner-supplied numbers; flagged that they total 4 sales vs "two sales" spoken and must be real for an ad — owner chose to keep them.
+- Lesson: when a user has no assets, real site captures + plainly designed cards beat imitation screenshots; flag claim/VO mismatches before delivery.
+
+## 2026-11-10 — Day-in-the-life vlog → reel + YouTube thumbnail
+- Source: YouTube long-form `VLOG RR_clean_v1.mp4` (6:00, 16:9, 59.94fps). Built a 45s 9:16 reel
+  (hook "AEP budget" line → lake montage → carrier deposit → T-minus 18 → gym → revenue-before-noon payoff → link-in-bio end card).
+  Project: ~/Video Projects/vlog-rr-reel (build.py, thumb/make_thumb.py). Delivered to Drive 2 – Edited (review).
+- Lesson: a persistent title banner over a 16:9→9:16 crop lands on the speaker's face (heads sit high in
+  vlog framing). Use a black title band on top (420px) with the video below (crop 778px wide → 1080x1500):
+  no face is covered and the crop is less zoomed.
+- Thumbnail: blurred the calendar screen so client names on it can't be read.
+- here.now credentials missing on this machine (~/.herenow) → canvas could not publish; delivered via Drive.
+
+## 2026-11-10 — New skill: youtube-thumbnail
+- Built from a thumbnail-strategy talk (TV top-half test, question+emotion before pixels, 10–15
+  references across 5 sources and transfer the mechanism, remove clutter, clear main character,
+  A/B the text) plus this session's own thumbnail work.
+- Scripts: frame_mine.py (sharpness-ranked candidates + timecoded sheet), compose.py (JSON layer
+  spec → 1280x720 <2 MB), check.py (full / feed / sidebar / TV half / grayscale / in-feed sheet).
+- Tested on the day-in-the-life vlog: 3 variants (A budget-on-the-line, B work|play same day,
+  C revenue-before-noon). Check sheet caught C as muddy + a cut-off body at the frame edge; fixed.
+- Lesson: v1's thumbnail text repeated the title word for word; the skill now requires the text to add
+  what the title doesn't say.

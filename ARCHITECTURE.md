@@ -33,6 +33,8 @@ every real edit without ever carrying the edit's private details.
   video-qa/                # the 4-layer QA procedure (what tools/video-qa automates)
   video-review-canvas/     # here.now review page + timeline-comment readback
   capcut-export/           # layered export to a CapCut draft (WIP)
+  youtube-thumbnail/       # brief → references → frame mining → spec-driven composite → check sheet
+                           #   (feed/sidebar size, TV top-half test, grayscale, in-feed comparison)
 tools/video-qa/            # the QA ENGINE: a standalone node package (tsx/zod), own package.json
   cli/qa-video.ts          #   4-layer run: --manifest | --lane hyperframes --edl … | --video
   cli/inspect-video.ts     #   Layer-4 inspection packet for one window
@@ -87,6 +89,7 @@ SETUP.md                   # every tool + API with a CHECK and a FIX
   inverts the usual base cut (keeps ~15% of runtime as pauses) and ships no audio assets.
 - B-roll comes from `broll-capture` (real screens) or `openart-broll` / `arcads-broll`
   (generated).
+- **A long-form upload's thumbnail** → `youtube-thumbnail` (Pillow + ffmpeg only; no API cost).
 
 The specialist skills are also independently invocable for narrowly scoped requests.
 

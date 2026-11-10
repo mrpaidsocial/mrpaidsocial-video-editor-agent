@@ -299,6 +299,7 @@ draft opens before telling the user it is ready.
 | AI-actor footage: ambience, room reverb, bleeps, watermark whine, loudness master | ai-audio-sound-design |
 | Uncut take + hard-cut image overlays on content nouns (title plate, inserts above the eyeline, skeleton-UI cards, early CTA banner) | talking-head-image-overlays |
 | Layered export to a CapCut draft | capcut-export |
+| YouTube thumbnail / cover image, A/B thumbnail variants, thumbnail critique | youtube-thumbnail |
 
 ## Culture rules (apply at every stage)
 

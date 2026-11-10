@@ -38,3 +38,4 @@ tools/video-qa/src/__tests__/fixtures/gen/
 
 # local deny-list for scripts/scrub-check.sh (names of clients, people, private repos)
 scripts/scrub-denylist.local.txt
+.venv/
