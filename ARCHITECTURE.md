@@ -21,6 +21,7 @@ every real edit without ever carrying the edit's private details.
   recap-video/            # event recap: per-line takes, supplied B-roll, split/full layouts, exact assembly
   hook-splitter/           # one long composite of many hooks → N tightened standalone videos
   hook-variations/         # one body × N hooks → N standalone variants (lossless + AVFoundation-verified)
+  edits-hook-overlay/      # native IG Edits text typed once (USB iPhone) → exact PNG (difference matte) → burned on N videos, HLG-safe
   naming-convention/       # descriptive filenames for a batch of deliverables
   edl-tighten/             # silence/pacing cuts with a full timeline remap
   sound-design/            # ElevenLabs SFX kit + music bed, audit, mixing math

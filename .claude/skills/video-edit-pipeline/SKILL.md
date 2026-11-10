@@ -8,7 +8,7 @@ description: >
   clip into a finished reel", "do the full edit", "make this look like their
   winning ads", or a revision request on a previously delivered edit. It routes
   every stage to the right specialist skill (reel-style-clone, branded-ad-edit,
-  reel-recut, arcads-video-edit, recap-video, talking-head-image-overlays, hook-splitter,
+  reel-recut, arcads-video-edit, recap-video, talking-head-image-overlays, hook-splitter, edits-hook-overlay,
   sound-design, ai-audio-sound-design,
   video-qa, video-review-canvas, edl-tighten, hook-variations, naming-convention,
   capcut-export) and
@@ -296,6 +296,7 @@ draft opens before telling the user it is ready.
 | Multi-take screen + camera + mic demo → EDL base cut → motion-graphics pass | arcads-video-edit |
 | Event recap from spoken takes + supplied B-roll, split/full layouts and line-anchored revisions | recap-video |
 | One long recording of many hooks → one tightened video per hook (+ gallery canvas) | hook-splitter |
+| Native Instagram (Edits) text hook typed once on the phone, lifted as a PNG and burned onto many videos | edits-hook-overlay |
 | AI-actor footage: ambience, room reverb, bleeps, watermark whine, loudness master | ai-audio-sound-design |
 | Uncut take + hard-cut image overlays on content nouns (title plate, inserts above the eyeline, skeleton-UI cards, early CTA banner) | talking-head-image-overlays |
 | Layered export to a CapCut draft | capcut-export |

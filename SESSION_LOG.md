@@ -1,5 +1,23 @@
 # SESSION LOG — Video Editor Agent
 
+## 2026-10-26 — New skill: edits-hook-overlay (native Instagram text, made once, reused on many videos)
+
+**Goal:** Get the Edits app's native text hook onto many videos without opening each one in Edits.
+
+**Done:** `.claude/skills/edits-hook-overlay/`: `make_plate.sh` (black|white plate), `edits_hooks.py` (drives a
+template project in Edits over WebDriverAgent: retype, verify label, export, Download, pull the one new camera-roll
+MP4), `extract_overlay.py` (difference matte from the two halves: exact alpha incl. anti-aliasing and rounded boxes,
+self-checks re-composite error and motion), `apply_overlay.py` (scale/place/time, HLG kept via a generated
+SDR709->HLG2020 LUT, SDR -> H.264, audio copied), `make_hlg_lut.py` (reproduces the 0.91-white LUT used on earlier
+HDR edits exactly, max diff 0.0, so the 7 MB .cube is not committed). Routed from video-edit-pipeline.
+
+**Validation:** live on a USB iPhone: 3 hooks exported (2 by the script unattended), re-composite error 0.013-0.014/255,
+motion 0.2/255; burned onto two 1440x2560 HLG takes, frames checked through an AVFoundation SDR grab; pixels outside
+the box within ~1/255 of the source. Owner approved the test output before packaging.
+
+**Gotchas found:** WDA typing at default speed drops letters in Edits (use frequency ~6); new text clips are 3 s (stretch
+across the plate); Edits may prompt "export at higher resolution anyway"; ffmpeg filter paths break on apostrophes.
+
 ## 2026-10-16 — LF frame checks in the QA engine (TypeSafe Jev)
 
 Added an optional per-frame layer to `qa:video`: overlay text inside a vertical frame's

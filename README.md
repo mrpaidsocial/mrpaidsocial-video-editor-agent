@@ -149,6 +149,7 @@ HyperFrames, whisper models, or ffmpeg.
 | [Recap Video](.claude/skills/recap-video/SKILL.md) | Event/conference/travel recap: choose the best take per line, remove pauses and restarts, match supplied B-roll to narration, mix split/full layouts, verify and revise. Includes a portable base-cut assembler. |
 | `hook-splitter` | One long recording of many hooks/takes → one tightened standalone video per hook, QA'd by re-transcribing the renders, delivered on a gallery canvas with a comment box per video. |
 | `hook-variations` | One approved body × N hooks → N standalone variants, joined losslessly, loudness-matched, verified with AVFoundation (not just ffmpeg). |
+| `edits-hook-overlay` | Instagram's native text hook (Edits font, boxes, anti-aliasing) typed once on a USB iPhone over a black/white plate, lifted as an exact transparent PNG and burned onto any number of videos; HDR phone footage stays untouched. |
 | `naming-convention` | Filenames that carry every axis that varies; verify a subject label before baking it into 40 files. |
 | `edl-tighten` | Surgical silence/pacing cuts with a full timeline remap (captions/cards/SFX stay synced). |
 | `sound-design` | ElevenLabs SFX/music generation, audit pass, style-matching a reference track, mixing math. |
