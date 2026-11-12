@@ -19,6 +19,9 @@ every real edit without ever carrying the edit's private details.
   reel-style-clone/        # reference reel → STYLE-GUIDE.md + build directives
   arcads-video-edit/       # multi-take screen+camera+mic demo → EDL base cut → motion-graphics pass
   recap-video/            # event recap: per-line takes, supplied B-roll, split/full layouts, exact assembly
+  pre-shoot-edit/          # split-screen edit built from the script BEFORE filming: clip/wall cutter, split comp
+                           #   template (card push-ins), stand-in timing over a placeholder take, storyboard,
+                           #   previews; on edit day the real take's words re-time every beat
   hook-splitter/           # one long composite of many hooks → N tightened standalone videos
   hook-variations/         # one body × N hooks → N standalone variants (lossless + AVFoundation-verified)
   edits-hook-overlay/      # native IG Edits text typed once (USB iPhone) → exact PNG (difference matte) → burned on N videos, HLG-safe
@@ -81,6 +84,14 @@ SETUP.md                   # every tool + API with a CHECK and a FIX
   (reference forensics, line selection, B-roll catalog, exact base assembly, source-anchored
   captions/graphics, render/QA and review revisions). Its portable Python assembler writes
   versioned EDL/word maps; it needs Python and ffmpeg/ffprobe, with no new cloud dependency.
+- **A script with its beats table and no footage yet** → `pre-shoot-edit`: B-roll clips and
+  pre-composited walls cut from a spec (`cut_clips.py`, checked on `clip_strips.py` sheets), a
+  split-screen HyperFrames comp keyed to the script's words (template `lib.mjs` SPLIT/FULL/VIS
+  with `card().push()`), stand-in timing at the speaker's pace over a placeholder camera layer
+  (`standin.py`), `storyboard.py` ids shared by stand-in and real builds, stand-in previews on
+  the review canvas. On edit day the Stage 0 intake runs on the real take, its words replace the
+  stand-in list, every beat re-times, then QA and delivery as usual. Python, ffmpeg/ffprobe and
+  HyperFrames; no cloud dependency.
 - **One long recording of many hooks** → `hook-splitter`; an approved body plus many hooks →
   `hook-variations`; any batch of more than two files → `naming-convention` before delivery.
 - **AI-actor footage that sounds sterile** → `ai-audio-sound-design` (audio-only pass).

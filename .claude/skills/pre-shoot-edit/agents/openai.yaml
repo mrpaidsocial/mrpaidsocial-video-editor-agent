@@ -1,0 +1,4 @@
+interface:
+  display_name: "Pre-shoot Edit"
+  short_description: "Build the split-screen edit before filming, with a placeholder take"
+  default_prompt: "Use $pre-shoot-edit to build the B-roll and motion graphics for this script before I film, with a placeholder for my talking head."

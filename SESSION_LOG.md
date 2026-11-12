@@ -1,5 +1,33 @@
 # SESSION LOG — Video Editor Agent
 
+## 2026-11-12 — New skill: pre-shoot-edit (the split-screen edit built before filming)
+
+**Goal:** turn a real pre-shoot build into a skill: a split-screen reel whose B-roll, panel graphics, captions,
+storyboard and stand-in previews were all made the day before the speaker filmed, so edit day is only the take.
+
+**Done:** `.claude/skills/pre-shoot-edit/`: `SKILL.md` (clips → comp → stand-in → beats → build/check/look → canvas →
+hand-off, plus edit day), references (`comp-patterns.md`, `edit-day.md`, `lessons.md`), `agents/openai.yaml`, a
+comp template (`lib.mjs` SPLIT/FULL/VIS with a `card()` builder whose `push()` zooms a post or page card in on the
+spoken phrase as far as the safe text area allows, `build.mjs`, `preview.sh`, `framing.json`, a worked example
+section), a clip spec example, and scripts `cut_clips.py`, `clip_strips.py`, `standin.py`, `storyboard.py`,
+`line_times.py`. `video-edit-pipeline` routes "script ready, no footage yet" to it (Stage 0 lane + routing table).
+
+**Verification:** against the original project, the scripts reproduced its three stand-in word lists and the
+placeholder frame byte for byte (and the placeholder's duration), its 28-element storyboard and its canvas beat times
+exactly, and two of its clips frame for frame. The template plus the example section built, passed `hyperframes check` (0 errors; warnings of the
+same kinds the original build had) and `qa:storyboard`, and rendered; frames were inspected.
+
+**Bugs the tests found, fixed before shipping:** a wall with odd cells (465 px) came out 929 px tall and x264 refused
+it (walls now lay out on even cells and pad back to the requested size); the strip sheet crashed on a one-clip group;
+a failed section still wrote an empty `index.html`, and `preview.sh` hid the failure behind `| tail` (the build now
+refuses to write; pipefail on).
+
+**Also:** `preview.sh` takes `TAG=r2`, because a preview already on the review canvas is never overwritten: a fix
+after publishing renders to a new file and goes up as a new version on the same link.
+
+**Lesson (in the skill):** a crop that dodges a creator's burned-in caption in one clip has to be carried to every
+other window cut from that source. The strip sheets caught the caption still showing in two montage walls.
+
 ## 2026-10-26 — New skill: edits-hook-overlay (native Instagram text, made once, reused on many videos)
 
 **Goal:** Get the Edits app's native text hook onto many videos without opening each one in Edits.

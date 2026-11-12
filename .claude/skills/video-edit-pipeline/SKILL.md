@@ -9,6 +9,7 @@ description: >
   winning ads", or a revision request on a previously delivered edit. It routes
   every stage to the right specialist skill (reel-style-clone, branded-ad-edit,
   reel-recut, arcads-video-edit, recap-video, talking-head-image-overlays, hook-splitter, edits-hook-overlay,
+  pre-shoot-edit (the split-screen edit built from the script before filming, take dropped in on edit day),
   sound-design, ai-audio-sound-design,
   video-qa, video-review-canvas, edl-tighten, hook-variations, naming-convention,
   capcut-export) and
@@ -82,6 +83,12 @@ invalidates downstream work when inputs change. See
 the shared footage catalog. These receipts add no user approval gates.
 
 5. **Which lane.** Decide from what was handed over, before Stage 1:
+   - a **script with its beats table and no footage yet** (the speaker films soon and wants the
+     edit ahead of time) → **pre-shoot-edit**: it cuts the B-roll, builds the split-screen
+     graphics, captions and SFX against stand-in timing over a placeholder take, and puts
+     stand-in previews on the canvas. When the footage arrives, run this Stage 0 intake on it,
+     follow that skill's edit-day steps to drop the take into the built comp, then Stages 4–6.
+     A comp built that way is the build; don't start a second one.
    - a **single talking head + a brand** → Stages 1–7 below (branded-ad-edit).
    - the creator's **own signature reel look** (banner, karaoke captions, callouts,
      silence-cut pacing) → **reel-recut**, then Stages 4–6.
@@ -284,6 +291,7 @@ draft opens before telling the user it is ready.
 
 | Need | Skill |
 |---|---|
+| Split-screen edit built before filming (clips, panel graphics, stand-in previews), real take dropped in on edit day | pre-shoot-edit |
 | Reverse-engineer a reference reel | reel-style-clone |
 | The main build (crops, storyboard, cards, captions) | branded-ad-edit |
 | SFX kit + music bed + mix levels | sound-design |
