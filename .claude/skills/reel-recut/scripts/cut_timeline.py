@@ -11,6 +11,25 @@ import subprocess
 import wave
 
 
+# ffmpeg 8 deprecated -filter_complex_script and ffmpeg 9 removed it in favour
+# of the generic "-/filter_complex <file>" form. Probe the binary once so the
+# same graph file renders on both old and new ffmpeg.
+_FC_SCRIPT_FLAG = {}
+
+
+def filter_complex_script_flag(ffmpeg):
+    flag = _FC_SCRIPT_FLAG.get(ffmpeg)
+    if flag is None:
+        try:
+            helptext = subprocess.run([ffmpeg, "-hide_banner", "-h", "full"],
+                                      capture_output=True, text=True, check=False).stdout
+        except OSError:
+            helptext = ""
+        flag = "-filter_complex_script" if "-filter_complex_script" in helptext else "-/filter_complex"
+        _FC_SCRIPT_FLAG[ffmpeg] = flag
+    return flag
+
+
 def binary(env):
     return os.environ.get(env) or os.environ.get(env + "_PATH") or shutil.which(env.lower()) or str(Path("/opt/homebrew/bin") / env.lower())
 
@@ -89,7 +108,7 @@ def render_base(source, output, work, keeps, fps=30, sample_rate=48000, crf=18,
         graph.write_text(";\n".join(filters))
         chunk = work / f"batch-{len(chunks):04}.mkv"
         run([ffmpeg, "-nostdin", "-v", "error", "-n", *inputs, "-filter_complex_threads", "1",
-             "-filter_complex_script", graph, "-map", "[v]", "-map", "[a]", "-c:v", "ffv1", "-threads", "1",
+             filter_complex_script_flag(ffmpeg), graph, "-map", "[v]", "-map", "[a]", "-c:v", "ffv1", "-threads", "1",
              "-pix_fmt", "yuv420p", "-r", str(rate), "-c:a", "pcm_s16le", "-ar", sample_rate, chunk])
         chunks.append(chunk)
     # Relative generated filenames avoid quoting arbitrary source paths in concat syntax.

@@ -24,6 +24,25 @@ import subprocess
 import sys
 
 
+# ffmpeg 8 deprecated -filter_complex_script and ffmpeg 9 removed it in favour
+# of the generic "-/filter_complex <file>" form. Probe the binary once so the
+# same graph file renders on both old and new ffmpeg.
+_FC_SCRIPT_FLAG = {}
+
+
+def filter_complex_script_flag(ffmpeg):
+    flag = _FC_SCRIPT_FLAG.get(ffmpeg)
+    if flag is None:
+        try:
+            helptext = subprocess.run([ffmpeg, "-hide_banner", "-h", "full"],
+                                      capture_output=True, text=True, check=False).stdout
+        except OSError:
+            helptext = ""
+        flag = "-filter_complex_script" if "-filter_complex_script" in helptext else "-/filter_complex"
+        _FC_SCRIPT_FLAG[ffmpeg] = flag
+    return flag
+
+
 class CutError(Exception):
     pass
 
@@ -279,7 +298,7 @@ def render(ffmpeg, ffprobe, source, outfile, work, spans, fps, sample_rate, crf,
     graph.write_text(";\n".join(parts) + "\n")
     pcm = work / "dialogue.wav"
     cmd = [ffmpeg, "-nostdin", "-hide_banner", "-loglevel", "error", "-n", *inputs,
-           "-filter_complex_script", str(graph), "-map", "[v]", "-map", "[a]",
+           filter_complex_script_flag(ffmpeg), str(graph), "-map", "[v]", "-map", "[a]",
            "-c:v", "libx264", "-crf", str(crf), "-preset", preset, "-g", str(fps),
            "-keyint_min", str(fps), "-pix_fmt", "yuv420p", "-r", str(fps),
            "-video_track_timescale", str(fps * 1000), "-c:a", "aac", "-b:a", "192k",
