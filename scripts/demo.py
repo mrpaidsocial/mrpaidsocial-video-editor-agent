@@ -121,7 +121,7 @@ style="position:absolute;left:24px;top:24px;width:272px;height:56px;background:#
     qa_dir = out / "_qa"
     qa_dir.mkdir()
     verify_overlay(ffmpeg, render, qa_dir / "demo-pixel-proof.json")
-    qa_command = ["npm", "--prefix", ROOT / "tools/video-qa", "run"]
+    qa_command = [shutil.which("npm") or "npm", "--prefix", ROOT / "tools/video-qa", "run"]
     run([*qa_command, "qa:storyboard", "--", "--storyboard", out / "storyboard.json",
          "--html", out / "composition.html", "--video", render, "--out", qa_dir / "storyboard"])
     # Tone fixture has no transcript. Semantic/model checks stay explicitly disabled.

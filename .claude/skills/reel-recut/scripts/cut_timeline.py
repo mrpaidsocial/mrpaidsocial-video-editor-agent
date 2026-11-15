@@ -58,12 +58,16 @@ def render_base(source, output, work, keeps, fps=30, sample_rate=48000, crf=18,
         raise ValueError(f"Output already exists; choose a new version: {output}")
     if work.exists():
         raise ValueError(f"Cut work directory already exists; choose a fresh directory: {work}")
-    timeline = plan(keeps, fps, sample_rate)
-    rate = Fraction(timeline["fps"])
     metadata = json.loads(run([ffprobe, "-v", "error", "-show_streams", "-show_format", "-of", "json", source]))
     if not any(s["codec_type"] == "video" for s in metadata["streams"]) or not any(s["codec_type"] == "audio" for s in metadata["streams"]):
         raise ValueError("Cut source needs video and audio streams")
     duration = float(metadata["format"]["duration"])
+    # Phone/WhatsApp files often carry audio slightly longer than video; a trailing keep that
+    # runs past the last video frame would plan frames that do not exist, so clamp to the video.
+    vdur = next((float(s["duration"]) for s in metadata["streams"] if s["codec_type"] == "video" and s.get("duration")), duration)
+    keeps = [[s, min(e, vdur)] for s, e in keeps if s < vdur]
+    timeline = plan(keeps, fps, sample_rate)
+    rate = Fraction(timeline["fps"])
     if any(float(s["sourceEndFrame"] / rate) > duration + 1e-5 for s in timeline["spans"]):
         raise ValueError("Keep interval exceeds the source duration")
     work.mkdir(parents=True)
@@ -79,7 +83,7 @@ def render_base(source, output, work, keeps, fps=30, sample_rate=48000, crf=18,
             inputs.extend(["-threads", "1", "-ss", f"{start:.12f}", "-t", f"{seconds + .25:.12f}", "-i", source])
             filters.append(f"[{i}:v:0]setpts=PTS-STARTPTS,fps=fps={rate}:start_time=0,trim=end_frame={span['frames']},setpts=PTS-STARTPTS[v{i}]")
             fade = min(round(sample_rate * .003), max(1, span["samples"] // 2))
-            filters.append(f"[{i}:a:0]asetpts=PTS-STARTPTS,aresample={sample_rate}:first_pts=0,atrim=end_sample={span['samples']},asetpts=PTS-STARTPTS,afade=t=in:ss=0:ns={fade},afade=t=out:ss={span['samples'] - fade}:ns={fade}[a{i}]")
+            filters.append(f"[{i}:a:0]asetpts=PTS-STARTPTS,aresample={sample_rate}:first_pts=0,apad=whole_len={span['samples']},atrim=end_sample={span['samples']},asetpts=PTS-STARTPTS,afade=t=in:ss=0:ns={fade},afade=t=out:ss={span['samples'] - fade}:ns={fade}[a{i}]")
         filters.append("".join(f"[v{i}]" for i in range(len(batch))) + f"concat=n={len(batch)}:v=1:a=0[joinedv]")
         # A one-frame video-only concat segment has no timestamp delta. Rebuild
         # the batch grid before the encoder can collapse coincident timestamps.
@@ -89,7 +93,7 @@ def render_base(source, output, work, keeps, fps=30, sample_rate=48000, crf=18,
         graph.write_text(";\n".join(filters))
         chunk = work / f"batch-{len(chunks):04}.mkv"
         run([ffmpeg, "-nostdin", "-v", "error", "-n", *inputs, "-filter_complex_threads", "1",
-             "-filter_complex_script", graph, "-map", "[v]", "-map", "[a]", "-c:v", "ffv1", "-threads", "1",
+             "-/filter_complex", graph, "-map", "[v]", "-map", "[a]", "-c:v", "ffv1", "-threads", "1",
              "-pix_fmt", "yuv420p", "-r", str(rate), "-c:a", "pcm_s16le", "-ar", sample_rate, chunk])
         chunks.append(chunk)
     # Relative generated filenames avoid quoting arbitrary source paths in concat syntax.
