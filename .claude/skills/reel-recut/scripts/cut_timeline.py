@@ -6,6 +6,7 @@ import json
 import math
 import os
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import wave
@@ -20,6 +21,23 @@ def run(argv):
     if result.returncode:
         raise ValueError(f"{Path(str(argv[0])).name} failed: {result.stderr[-4000:]}")
     return result.stdout
+
+
+def filtergraph_option(ffmpeg):
+    """The option that reads a filtergraph from a file, for THIS ffmpeg build.
+
+    ffmpeg 7.0 added the generic `-/opt file` syntax and 8.0 removed the older
+    `-filter_complex_script`, so neither spelling works on every build. A long
+    graph cannot go on the command line (ARG_MAX), so the file form is required.
+    An unparseable version (a git or nightly build) is newer than 7.0 in practice.
+    """
+    try:
+        banner = subprocess.run([str(ffmpeg), "-hide_banner", "-version"],
+                                text=True, capture_output=True).stdout
+    except OSError:
+        return "-/filter_complex"
+    match = re.match(r"ffmpeg version n?(\d+)\.", banner)
+    return "-filter_complex_script" if match and int(match.group(1)) < 7 else "-/filter_complex"
 
 
 def plan(keeps, fps=30, sample_rate=48000):
@@ -69,6 +87,7 @@ def render_base(source, output, work, keeps, fps=30, sample_rate=48000, crf=18,
     work.mkdir(parents=True)
     output.parent.mkdir(parents=True, exist_ok=True)
     (work / "timeline.json").write_text(json.dumps(timeline, indent=2) + "\n")
+    graph_option = filtergraph_option(ffmpeg)
     chunks = []
     for offset in range(0, len(timeline["spans"]), 16):
         batch = timeline["spans"][offset:offset + 16]
@@ -89,7 +108,7 @@ def render_base(source, output, work, keeps, fps=30, sample_rate=48000, crf=18,
         graph.write_text(";\n".join(filters))
         chunk = work / f"batch-{len(chunks):04}.mkv"
         run([ffmpeg, "-nostdin", "-v", "error", "-n", *inputs, "-filter_complex_threads", "1",
-             "-filter_complex_script", graph, "-map", "[v]", "-map", "[a]", "-c:v", "ffv1", "-threads", "1",
+             graph_option, graph, "-map", "[v]", "-map", "[a]", "-c:v", "ffv1", "-threads", "1",
              "-pix_fmt", "yuv420p", "-r", str(rate), "-c:a", "pcm_s16le", "-ar", sample_rate, chunk])
         chunks.append(chunk)
     # Relative generated filenames avoid quoting arbitrary source paths in concat syntax.

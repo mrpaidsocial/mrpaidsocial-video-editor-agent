@@ -47,6 +47,23 @@ def binary(name, alternate):
     return found
 
 
+def filtergraph_option(ffmpeg):
+    """The option that reads a filtergraph from a file, for THIS ffmpeg build.
+
+    ffmpeg 7.0 added the generic `-/opt file` syntax and 8.0 removed the older
+    `-filter_complex_script`, so neither spelling works on every build. A long
+    graph cannot go on the command line (ARG_MAX), so the file form is required.
+    An unparseable version (a git or nightly build) is newer than 7.0 in practice.
+    """
+    try:
+        banner = subprocess.run([str(ffmpeg), "-hide_banner", "-version"],
+                                text=True, capture_output=True).stdout
+    except OSError:
+        return "-/filter_complex"
+    match = re.match(r"ffmpeg version n?(\d+)\.", banner)
+    return "-filter_complex_script" if match and int(match.group(1)) < 7 else "-/filter_complex"
+
+
 def probe(ffprobe, path):
     return json.loads(run([ffprobe, "-v", "error", "-show_streams", "-show_format",
                            "-of", "json", str(path)]).stdout)
@@ -279,7 +296,7 @@ def render(ffmpeg, ffprobe, source, outfile, work, spans, fps, sample_rate, crf,
     graph.write_text(";\n".join(parts) + "\n")
     pcm = work / "dialogue.wav"
     cmd = [ffmpeg, "-nostdin", "-hide_banner", "-loglevel", "error", "-n", *inputs,
-           "-filter_complex_script", str(graph), "-map", "[v]", "-map", "[a]",
+           filtergraph_option(ffmpeg), str(graph), "-map", "[v]", "-map", "[a]",
            "-c:v", "libx264", "-crf", str(crf), "-preset", preset, "-g", str(fps),
            "-keyint_min", str(fps), "-pix_fmt", "yuv420p", "-r", str(fps),
            "-video_track_timescale", str(fps * 1000), "-c:a", "aac", "-b:a", "192k",
