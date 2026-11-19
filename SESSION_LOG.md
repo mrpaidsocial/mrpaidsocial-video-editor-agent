@@ -1,5 +1,54 @@
 # SESSION LOG — Video Editor Agent
 
+## 2026-11-19 — ffmpeg 8 removed -filter_complex_script: pick the spelling per build
+
+**Goal:** finish the `fix/ffmpeg-filter-complex-script` branch. Its one commit swapped
+`-filter_complex_script` for `-/filter_complex` in `recap-video/scripts/assemble.py` and
+`reel-recut/scripts/{build_reel,cut_timeline}.py`, which fixes ffmpeg 8+ but moves the break
+to the other end: `-/opt` is ffmpeg 7.0+, so every long-graph render would now fail on
+ffmpeg 5/6 — Debian 12 (5.1) and Ubuntu 24.04 LTS (6.1) — in exactly the same quiet way.
+The doctor only checks that ffmpeg exists, never its version, so nothing would have caught it.
+
+**Done:** a `filtergraph_option(ffmpeg)` helper reads the build's version banner and returns
+`-filter_complex_script` below 7.0, else `-/filter_complex`; an unparseable banner (git and
+nightly builds) is treated as modern. `cut_timeline.py` owns it for reel-recut and
+`build_reel.py` imports it — those two already share `plan`/`render_base` — and recap-video
+keeps its own copy, because skills stay self-contained. `cut_timeline.render_base` resolves it
+once per run, not once per chunk. The command line is not an option for either spelling: a
+long graph exceeds ARG_MAX, which is why the file form exists.
+
+**Verification:** on ffmpeg 9.0.2, `-filter_complex_script` is gone ("Unrecognized option")
+and `-/filter_complex` renders — the branch's premise, confirmed first. Version selection was
+checked against eight real banners (Ubuntu 22.04 4.4, Debian 12 5.1, Ubuntu 24.04 6.1, 7.0,
+n7.1, 8.0, git `N-…`, a gyan.dev nightly) plus a missing binary. The pre-7.0 branch was then
+exercised for real through a stub that reports 6.1.1, exits 97 if the caller passes the 7.0+
+flag, and otherwise runs the real binary: the recap smoke test passed under it with identical
+frame and sample counts, and `cut_timeline` produced a **byte-identical** MP4 (same sha256,
+90 frames) to the ffmpeg 9 run. The guard was negative-controlled so the pass could not be
+vacuous. `scripts/test.sh --integration` 47 passed / 0 failed / 1 skipped; `scripts/demo.sh`
+completes end to end.
+
+**Second bug, found by checking the commit message's own claim:** it said a failed
+`setup.sh --demo` "still exits 0 and prints Setup ready". The exit code is in fact 1 —
+`run()` uses `check=True`. But "Setup ready" was printed *before* the demo ran, and since
+stdout is block-buffered when redirected to a log while the child's errors go to stderr
+unbuffered, the success line surfaced as the **last** line of a failed run. Reading the tail
+of the log, a failure looked like a pass. `scripts/setup.py` now runs the demo first and
+prints that line only after it passes; both paths verified (failure: exit 1, no "Setup
+ready"; success: exit 0, it is the last line).
+
+**Also:** `.claude/launch.json` is gitignored — it is a review-preview dev-server config
+pinned to a local `outputs/demo-*` path and port, so it belongs to the working machine.
+
+**Lesson (the reason this branch needed finishing):** a compatibility fix that targets one
+end of a version range quietly creates the mirror failure at the other end. Replacing a
+removed CLI option is only half the fix; the other half is asking which builds the
+*replacement* excludes, and whether anything would tell you. Verify a version-switched branch
+by running the branch you are not on — a stub that refuses the modern flag and shells out to
+the real binary proves the old path renders, and a byte-identical output proves it renders the
+same. And treat a commit message as a claim, not a finding: this one's premise held and its
+side note did not.
+
 ## 2026-11-12 — New skill: pre-shoot-edit (the split-screen edit built before filming)
 
 **Goal:** turn a real pre-shoot build into a skill: a split-screen reel whose B-roll, panel graphics, captions,

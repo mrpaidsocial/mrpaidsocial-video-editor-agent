@@ -204,9 +204,14 @@ def main(argv=None):
     if status:
         print("Install the missing prerequisites above, or rerun with --install-system where supported.")
         return status
-    print("Setup ready. Personalize MASTER_CONTEXT.md before your first real edit.")
     if args.demo:
+        # Announce readiness only after the demo has proved the toolchain works.
+        # Flush first: stdout is block-buffered when redirected to a log while a
+        # failing child writes to stderr unbuffered, so an unflushed success line
+        # surfaces AFTER the error that invalidates it and reads like a pass.
+        print("Prerequisites ready; running the offline demo.", flush=True)
         run([sys.executable, ROOT / "scripts/demo.py"])
+    print("Setup ready. Personalize MASTER_CONTEXT.md before your first real edit.")
     return 0
 
 

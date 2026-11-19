@@ -32,6 +32,10 @@ MASTER_CONTEXT.md
 # Local publishing state belongs to the working machine, not the public skill pack.
 .herenow/
 
+# Dev-server config for the review preview: points at a local outputs/demo-* dir,
+# so the port and path belong to the working machine, not the public skill pack.
+.claude/launch.json
+
 # video-qa engine scratch (layer cache + generated test fixtures)
 tools/video-qa/.qa-cache/
 tools/video-qa/src/__tests__/fixtures/gen/
