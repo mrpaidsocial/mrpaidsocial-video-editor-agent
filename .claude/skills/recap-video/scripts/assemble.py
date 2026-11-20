@@ -279,7 +279,7 @@ def render(ffmpeg, ffprobe, source, outfile, work, spans, fps, sample_rate, crf,
     graph.write_text(";\n".join(parts) + "\n")
     pcm = work / "dialogue.wav"
     cmd = [ffmpeg, "-nostdin", "-hide_banner", "-loglevel", "error", "-n", *inputs,
-           "-filter_complex_script", str(graph), "-map", "[v]", "-map", "[a]",
+           "-/filter_complex", str(graph), "-map", "[v]", "-map", "[a]",
            "-c:v", "libx264", "-crf", str(crf), "-preset", preset, "-g", str(fps),
            "-keyint_min", str(fps), "-pix_fmt", "yuv420p", "-r", str(fps),
            "-video_track_timescale", str(fps * 1000), "-c:a", "aac", "-b:a", "192k",

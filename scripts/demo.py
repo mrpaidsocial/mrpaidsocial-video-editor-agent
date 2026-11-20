@@ -22,6 +22,7 @@ ROOT = Path(__file__).resolve().parent.parent
 
 def run(command, allowed=(0,), capture=False):
     command = [str(item) for item in command]
+    command[0] = shutil.which(command[0]) or command[0]  # resolves npm.cmd on Windows
     print("RUN  " + shlex.join(command), flush=True)
     result = subprocess.run(command, cwd=ROOT, capture_output=capture, text=capture)
     if result.returncode not in allowed:
