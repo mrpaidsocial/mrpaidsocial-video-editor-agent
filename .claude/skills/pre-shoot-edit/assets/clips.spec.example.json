@@ -1,0 +1,25 @@
+{
+  "out": "comp/assets/clips",
+  "fps": 30,
+  "clips": [
+    {"name": "c01-hook", "source": "broll/source/game-demo/video.mp4", "start": 0.0, "duration": 10.5,
+     "crop": "2348:2022:650:0", "size": [1080, 930], "shows": "line 1: the build's most impressive stretch (HUD corners cropped)"},
+    {"name": "c04-painted-vis", "source": "broll/source/painted-game/video.mp4", "start": 4.5, "duration": 10.5,
+     "crop": "810:1440:450:0", "size": [1080, 1920], "shows": "line 4: full screen while the speaker talks"},
+    {"name": "c06-os-demo", "source": "broll/captures/vendor-videos/os-demo.mp4", "start": 5.8, "duration": 5.0,
+     "size": [1000, 562], "shows": "the whole frame, so the vendor's 'accelerated' note stays visible"}
+  ],
+  "walls": [
+    {"name": "c06-wall-panel", "cols": 3, "rows": 2, "cell": [360, 465], "pad": 5, "bg": "0x04050A", "duration": 4.0,
+     "shows": "end card: the builds in the video, under a scrim",
+     "cells": [
+       {"source": "broll/source/game-demo/video.mp4", "start": 0.0, "crop": "1565:2022:1041:0"},
+       {"source": "broll/source/film/video.mp4", "start": 0.6, "crop": "1326:1720:1257:0",
+        "note": "stops above the film's own burned-in caption (the full-height crop showed it in this cell)"},
+       {"source": "broll/source/painted-game/video.mp4", "start": 4.5, "crop": "1115:1440:650:0"},
+       {"source": "broll/source/walkthrough/video.mp4", "start": 0.0, "crop": "836:1080:0:0"},
+       {"source": "broll/source/boat-game/video.mp4", "start": 42.0, "crop": "836:1080:542:0"},
+       {"source": "broll/source/device/video.mp4", "start": 25.0, "crop": "1672:2160:1084:0"}
+     ]}
+  ]
+}
