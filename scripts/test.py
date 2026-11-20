@@ -37,7 +37,7 @@ def main():
         commands.append([sys.executable, ".claude/skills/recap-video/scripts/smoke-test.py"])
     for command in commands:
         print("\nTEST  " + " ".join(command), flush=True)
-        result = subprocess.run(command, cwd=ROOT, env=env)
+        result = subprocess.run([shutil.which(str(command[0])) or command[0], *command[1:]], cwd=ROOT, env=env)
         if result.returncode:
             return result.returncode
     print("\nAll available offline suites passed." if not args.integration else "\nAll offline and media integration suites passed.")

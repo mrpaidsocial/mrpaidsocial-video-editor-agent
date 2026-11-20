@@ -1,5 +1,42 @@
 # SESSION LOG — Video Editor Agent
 
+## 2026-11-11 — First Windows install; two organic news-commentary edits shipped
+
+**Goal:** Set the pack up on a fresh Windows machine, clone a reference news reel's style, and ship two
+talking-head commentary edits (a serious news story and an entertainment/gossip story).
+
+**Done:** Windows setup (winget ffmpeg 9, Node, Python 3.15; whisper.cpp official Windows binary instead of a
+from-source build). `reel-style-clone` on a split-screen news reel (proof panel top 43%, face band below, live
+reading highlight on article screenshots, red callouts, keyword captions on stock). Two HyperFrames builds:
+an uncut take with ~25 proof/stock panels and no SFX (serious story), and a pause-tightened take with
+pop-up keyword captions, 29 ElevenLabs SFX, a ducked music bed and a closing poll card (gossip story).
+Both QA'd with `qa:video` and mastered to −14 LUFS.
+
+**Fixes on branch `fix/ffmpeg-filter-complex` (uncommitted):** ffmpeg ≥8 removed `-filter_complex_script`
+(now `-/filter_complex`) in three skill scripts; `setup.py`/`demo.py`/`test.py` resolve `npm` with
+`shutil.which` so Windows finds `npm.cmd`. Offline + integration suites pass except 3 Windows-only tests
+(symlinks need Developer Mode; POSIX file modes).
+
+**Follow-up (same day):** a third cut re-shot the gossip edit as a "multi-camera" edit from one
+2560x1440 take — virtual wide/medium/close/extreme-close/thirds/dutch angles via CSS transforms on a
+full-res `<video>`, per-shot framing from an OpenCV Haar face track (opencv-python-headless <5; OpenCV 5
+removed `CascadeClassifier`), push-ins, crash zooms, whip pans, flash and a B&W letterbox beat, plus a
+bilateral-blend skin cleanup chosen from a 4-up test. The creator approved it over the static-crop cut.
+Lesson: virtual angles from one camera must follow the subject's measured position, not a single
+estimate — a 220 px drift cut the face off the thirds framings until each shot used its own median.
+
+**Third edit (approved):** a commentary take with two third-party livestream clips spliced in as full-screen
+framed inserts (take paused, clip audio loudness-matched, reposter's caption cropped but watermark kept as
+credit). Whisper could not read livestream audio, so insert captions came from the article's own quotes and
+the creator supplied the clip timestamp. QA's duration check reads ~0.25 s long after ~30 frame-rounded trims.
+
+**Gotchas found:** HyperFrames does not read `HYPERFRAMES_WHISPER_PATH` from `.env` — export it in the shell.
+whisper base/small mis-hear Patois and hallucinate repeated lines; prefer keyword pop-ups over word-level
+karaoke unless a script is supplied. HyperFrames check: never animate `visibility` on clip elements, and a timed
+`<video>` cannot sit inside another timed element. Long pop-up text must auto-shrink to stay inside 1080 px.
+ElevenLabs Music API returns 402 on the free plan (SFX still work). Pexels pages list other videos' files —
+match by video id. News-page screenshots: hide media, ads and fixed/sticky headers, zoom the body, and
+paint out in-text ad chips before using them as proof panels.
 ## 2026-11-12 — New skill: pre-shoot-edit (the split-screen edit built before filming)
 
 **Goal:** turn a real pre-shoot build into a skill: a split-screen reel whose B-roll, panel graphics, captions,
